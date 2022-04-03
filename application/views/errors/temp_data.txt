@@ -1,0 +1,248 @@
+To Create Dynamic Dropdown (Multiple)
+https://www.webslesson.info/2018/06/codeigniter-dynamic-dependent-select-box-using-ajax.html
+
+1.Create Db
+	a.tbl_country: country_id, country_name
+	b.tbl_state: state_id,country_id, state_name (foreign key:country_id)
+	c.tbl_district: district_id,state_id, district_name (foreign key: state_id)
+	d.tbl_block: block_id, district_id, block_name (foreign key: district_id)
+
+2.Create Routes.(routes.php)
+	$route['main_dashboard'] = 'MainDashboard/getMainDashboard';  //POST
+3.Create view for Dropdown.(application/views)
+ <form>
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Select Country</label>
+                    <select class="form-control" id="country" name="country">
+                    <option selected>Select Country</option>
+                    <?php foreach ($country as $row):?>
+                    <?php echo('<option 											value="'.$row->country_id.'">'.$row->country_name.'</option>');?>
+                    <?php endforeach; ?>
+                    </select>
+                    <small id="passwordHelpInline" class="text-muted">
+                      Select Country Value First.
+                    </small>
+                </div>
+
+                 <div class="form-group">
+                    <label for="exampleFormControlSelect1">Select State</label>
+                    <select class="form-control" id="state" name="state"> 
+                    <option>Select State</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Select District</label>
+                    <select class="form-control" id="district" name="district">
+                    <option>Select District</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="exampleFormControlSelect1">Select Block</label>
+                    <select class="form-control" id="block" name="block">
+                    <option>Select Block</option>
+                    </select>
+                </div>
+ </form>
+ <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/js/bootstrap-datepicker.min.js"></script>
+       <script>
+          $("#datepicker_start, #datepicker_end").datepicker( {
+            format: "dd-mm-yyyy", 
+          });
+    //        $("#datepicker_end").datepicker( {
+    //     format: "dd-mm-yyyy",
+       
+    // });
+       </script>               
+    <script>
+      $(document).ready(function (){
+        $('#country').change(function(){
+          var country_id = $('#country').val();
+          alert(country_id);
+          if(country_id !== ''){
+            $.ajax({
+              url:"<?php echo base_url('MainDashboard/getStateName'); ?>",
+              type:"POST",
+              data: {country_id : country_id},
+              success: function (data) {
+              //  alert(data);
+                $('#state').html(data);
+              },
+              error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                alert("Status: " + textStatus); 
+                alert("Error: " + errorThrown); 
+                console.log(XMLHttpRequest);
+             } 
+            });
+          }else{
+            alert("Select option");
+          }
+        });
+
+        $('#state').change(function(){
+          var state_id = $('#state').val();
+        //  alert(state_id);
+          if(state_id != ''){
+            $.ajax({
+              url:"<?php echo base_url('MainDashboard/getDistrictName'); ?>",
+              type:"POST",
+              data: {state_id : state_id},
+              success: function (data) {
+              //  alert(data);
+                $('#district').html(data);
+              },
+              error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                alert("Status: " + textStatus); 
+                alert("Error: " + errorThrown); 
+                console.log(XMLHttpRequest);
+             } 
+            });
+          }
+        });
+
+
+        $('#district').change(function(){
+          var district_id = $('#district').val();
+         // alert(district_id);
+          if(district_id != ''){
+            $.ajax({
+              url:"<?php echo base_url('MainDashboard/getBlockName'); ?>",
+              type:"POST",
+              data: {district_id : district_id},
+              success: function (data) {
+              //  alert(data);
+                $('#block').html(data);
+              },
+              error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                alert("Status: " + textStatus); 
+                alert("Error: " + errorThrown); 
+                console.log(XMLHttpRequest);
+             } 
+            });
+          }
+        });
+
+      });
+    </script>
+3.Controller
+class MainDashboard extends CI_Controller {
+
+    //put your code here
+    public function __construct() {
+        parent::__construct();
+        $this->load->helper('url');
+        $this->load->model('Dashboard_model', 'd_model');
+       // $this->db_sbcc = $this->load->database('db_temp', true);
+    }
+
+    /**
+     * 
+     * 
+     * 
+     */
+    public function getMainDashboard(){
+        $data['country'] = $this->d_model->fetchCountryName();
+        $this->load->view('main_dashboard', $data);
+    }
+
+    public function getStateName(){
+        $country_value = $this->input->post('country_id');
+        
+        if(isset($country_value)){
+           echo $this->d_model->fetchStateName($country_value);
+        }
+    }
+
+    public function getDistrictName(){
+        $state_value = $this->input->post('state_id');
+
+        if(isset($state_value)){
+            echo $this->d_model->fetchDistrictName($state_value);
+        }
+    }
+
+    public function getBlockName(){
+        $district_value = $this->input->post('district_id');
+
+        if(isset($district_value)){
+            echo $this->d_model->fetchBlockName($district_value);
+        }
+    }
+}
+
+4.Model
+ class Dashboard_model extends CI_Model
+{
+
+    var $db_sbcc;
+    var $status;
+    var $message;
+    var $response_data = array();
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->db_sbcc = $this->load->database('db_temp', true);
+        $this->status = false;
+    }
+  //-----------------------------Country Name For Dropdown-----------------------------
+    public function fetchCountryName(){
+        $this->db_sbcc->order_by('country_name', 'ASC');
+        $query = $this->db_sbcc->get('Country');
+        return $query->result();
+    }
+
+    public function fetchStateName($country_id){
+        
+        $this->db_sbcc->where('country_id', $country_id);
+        $this->db_sbcc->order_by('state_name', 'ASC');
+        $query = $this->db_sbcc->get('State');
+
+        $output = '<option value="">Select State</option>';
+
+        foreach ($query->result() as $row){
+            $output .= '<option value="'.$row->state_id.'">'.$row->state_name.'</option>';
+        }
+
+        return $output;
+    }
+
+    public function fetchDistrictName($state_id){
+        $this->db_sbcc->where('state_id', $state_id);
+        $this->db_sbcc->order_by('district_name', 'ASC');
+        $query = $this->db_sbcc->get('District');
+
+        $output = '<option value="">Select District</option>';
+
+        foreach ($query->result() as $row){
+            $output .= '<option value="'.$row->district_id.'">'.$row->district_name.'</option>';
+        }
+
+        return $output;
+    }
+
+    public function fetchBlockName($district_id){
+        $this->db_sbcc->where('district_id', $district_id);
+        $this->db_sbcc->order_by('block_name', 'ASC');
+        $query = $this->db_sbcc->get('Block');
+
+        $output = '<option value="">Select Block</option>';
+
+        foreach ($query->result() as $row){
+            $output .= '<option value="'.$row->block_id.'">'.$row->block_name.'</option>';
+        }
+
+        return $output;
+    }
+}
+
+=================OR ALTERNATE WAY=========================
+https://makitweb.com/dynamic-dependent-dropdown-in-codeigniter-with-ajax/
