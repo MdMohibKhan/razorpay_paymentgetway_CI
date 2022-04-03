@@ -9,17 +9,19 @@ This Repository will help to add paymentgetway by the help of Razorpay.
 7)  Create a controller to render this page .
 8)  Now, goto razorpay official website(https://razorpay.com/) and create razorpay account and generate 'keyId' and 'secretKey'.
 9)  Create a function which collect customer infomation from view page and then load razorpay/Razorpay.php file from view.
-10)  Like : $dataForRazorpay=Array();
+10)  Like : 
+
+	$dataForRazorpay=Array();
             $dataForRazorpay["CustomerDetails"]=Array(
-				      "CustomerName"=>$this->input->post('name'),
-				      "CustomerEmail"=>$this->input->post('email'),
-				      "CustomerMobile"=>$this->input->post('mobile'),
-				      "PayAmount"=>$this->input->post('amount')
-			      );
+	    	"CustomerName"=>$this->input->post('name'),
+		"CustomerEmail"=>$this->input->post('email'),
+		"CustomerMobile"=>$this->input->post('mobile'),
+		"PayAmount"=>$this->input->post('amount')
+		);
             
             $dataForRazorpay["razorpay_Credentials"]=Array(
-              "keyId"=>"rzp_test_Qcjdhfehfejhu",
-              "secretKey"=>"bAnjedehhehdhedj"
+	    	"keyId"=>"rzp_test_Qcjdhfehfejhu",
+		"secretKey"=>"bAnjedehhehdhedj"
             );
             
             $this->load->view("razorpay/Razorpay",$dataForRazorpay);
