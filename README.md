@@ -28,6 +28,9 @@ This Repository will help to add paymentgetway by the help of Razorpay.
 12)  Write some code in Razorpay file as I written. Then create two view file inside views/razorpay directory and write code as I written.
 
 
+
+13)  Screenshots :
+
 ![](screenshots/customPaymentPage.png)
 ![](screenshots/razorpay_page.png)
 ![](screenshots/razorpay_page2.png)
